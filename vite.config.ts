@@ -7,6 +7,19 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 export default defineConfig({
   build: {
     sourcemap: 'hidden',
+    // 确保静态资源被正确复制到dist目录
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          // 保持img文件夹结构
+          if (assetInfo.name?.match(/\.(png|jpe?g|svg|gif|avif|webp)$/i)) {
+            return 'img/[name].[hash][extname]';
+          }
+          return 'assets/[name].[hash][extname]';
+        }
+      }
+    }
   },
   plugins: [
     react({
@@ -27,4 +40,6 @@ export default defineConfig({
     }), 
     tsconfigPaths()
   ],
+  // 确保img文件夹被识别为静态资源目录
+  publicDir: 'public'
 })
