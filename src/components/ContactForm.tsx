@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
+import CustomSelect from './CustomSelect';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     company: '',
     phone: '',
-    requirement: '战略咨询与培训'
+    requirement: '企业AI全案转型咨询'
   });
+
+  // 需求选项配置
+  const requirementOptions = [
+    { value: '企业AI全案转型咨询', label: '企业AI全案转型咨询' },
+    { value: '外贸/电商降本增效方案', label: '外贸/电商降本增效方案' },
+    { value: '智能客服/销售/RPA自动化部署', label: '智能客服/销售/RPA自动化部署' },
+    { value: 'AI+硬件/产品智能化定制', label: 'AI+硬件/产品智能化定制' },
+    { value: '企业内训与AI团队赋能', label: '企业内训与AI团队赋能' }
+  ];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -146,18 +156,20 @@ const ContactForm = () => {
   const isFormValid = formData.name && formData.company;
 
   return (
-    <section id="contact" className="bg-stone-50 py-12">
+    <section id="contact" className="py-12" style={{ backgroundColor: '#FFFBF2' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 
-            className="text-heading text-5xl lg:text-6xl text-black mb-6"
+            className="text-5xl lg:text-6xl text-black mb-6 font-bold"
+            style={{ fontFamily: 'var(--font-heading)' }}
           >
-            联系我们，开启您的AI转型之旅
+            别让你的竞争对手先看到我们
           </h2>
           <p 
-            className="text-body text-xl lg:text-2xl text-gray-700"
+            className="text-xl lg:text-2xl text-gray-700"
+            style={{ fontFamily: 'var(--font-body)' }}
           >
-            专业团队为您量身定制AI解决方案
+            每月仅开放 5 个深度陪跑名额。填写表单，锁定你的转型席位。
           </p>
         </div>
 
@@ -245,22 +257,12 @@ const ContactForm = () => {
                 >
                   您的需求 *
                 </label>
-                <select
-                  id="requirement"
-                  name="requirement"
+                <CustomSelect
                   value={formData.requirement}
-                  onChange={handleChange}
-                  className="text-body w-full px-4 py-3 border-2 border-gray-200 rounded-lg 
-                    focus:border-orange-500 focus:outline-none focus:shadow-[0_0_0_3px_rgba(217,119,87,0.1)]
-                    hover:border-gray-300
-                    transition-all duration-300"
-                >
-                  <option value="战略咨询与培训">战略咨询与培训</option>
-                  <option value="技术实施">技术实施</option>
-                  <option value="产品开发">产品开发</option>
-                  <option value="人才培养">人才培养</option>
-                  <option value="其他">其他</option>
-                </select>
+                  onChange={(value) => setFormData({ ...formData, requirement: value })}
+                  options={requirementOptions}
+                  placeholder="请选择您的需求"
+                />
               </div>
 
 
@@ -268,13 +270,14 @@ const ContactForm = () => {
               <button
                 type="submit"
                 disabled={!isFormValid || isSubmitting}
-                className={`w-full py-3 px-6 rounded-xl text-lg transition-all duration-300 ${
+                className={`w-full py-4 px-6 rounded-xl text-lg font-bold transition-all duration-300 ${
                   isFormValid && !isSubmitting
-                    ? 'bg-black text-white hover:bg-gray-800'
+                    ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white hover:from-orange-700 hover:to-orange-600 shadow-lg hover:shadow-xl'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
+                style={{ fontFamily: 'var(--font-body)' }}
               >
-                {isSubmitting ? '提交中...' : '联系我们'}
+                {isSubmitting ? '提交中...' : '免费领取诊断方案 (价值¥9800)'}
               </button>
 
               <p 

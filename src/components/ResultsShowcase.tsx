@@ -10,8 +10,8 @@ const ResultsShowcase = () => {
 
   const [todayConsultations, setTodayConsultations] = useState(0);
   
-  // 客户案例滚动状态
-  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+  // 客户案例连续滚动状态
+  const [scrollOffset, setScrollOffset] = useState(0);
   const [isTestimonialPaused, setIsTestimonialPaused] = useState(false);
 
   // 实时增长计算配置
@@ -33,15 +33,18 @@ const ResultsShowcase = () => {
     return SAVINGS_CONFIG.baseAmount + additionalSavings;
   };
 
-  // 计算今日咨询数（制造紧迫感）
-  const calculateTodayConsultations = () => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const minutesSinceMidnight = (now.getTime() - todayStart.getTime()) / (1000 * 60);
-    // 假设每小时平均1.2次咨询，波动±30%
-    const baseConsultations = Math.floor(minutesSinceMidnight / 50);
-    const randomFactor = 1 + (Math.random() * 0.6 - 0.3);
-    return Math.max(1, Math.floor(baseConsultations * randomFactor));
+  // 计算今日咨询数（基于圆周率的确定性算法）
+  const getDailyInquiryCount = () => {
+    const today = new Date().getDate(); // Returns 1-31
+    // First 31 digits of Pi (after the decimal point)
+    const piDigits = "1415926535897932384626433832795"; 
+    
+    // Get the digit corresponding to today (index is day - 1)
+    // Fallback to 5 if something goes wrong, though it shouldn't.
+    const digitToday = parseInt(piDigits[today - 1] || '5');
+    
+    const baseCount = 10;
+    return baseCount + digitToday;
   };
 
   const stats = [
@@ -49,8 +52,8 @@ const ResultsShowcase = () => {
       key: 'clients',
       number: '120+',
       finalValue: 120,
-      title: '服务企业',
-      subtitle: '累计客户数量',
+      title: '120+ 领跑企业',
+      subtitle: 'Industry Leaders',
       description: '覆盖政府、500强、中小企业等15+行业领域',
       iconPath: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
       gradientFrom: '#3B82F6',
@@ -61,8 +64,8 @@ const ResultsShowcase = () => {
       key: 'savings',
       number: '0',
       finalValue: 0,
-      title: '节约成本',
-      subtitle: '累计为客户节省（元）',
+      title: '¥2.9亿+ 累计节省',
+      subtitle: 'Cost Saved',
       description: '平均降本增效 65%，为客户持续创造价值',
       iconPath: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
       gradientFrom: '#10B981',
@@ -74,8 +77,8 @@ const ResultsShowcase = () => {
       key: 'efficiency',
       number: '73%',
       finalValue: 73,
-      title: '效率提升',
-      subtitle: '平均工作效率提升',
+      title: '73% 效率革命',
+      subtitle: 'Efficiency Boost',
       description: '业务流程智能化，人力成本显著降低',
       iconPath: 'M13 10V3L4 14h7v7l9-11h-7z',
       gradientFrom: '#8B5CF6',
@@ -86,8 +89,8 @@ const ResultsShowcase = () => {
       key: 'satisfaction',
       number: '96%',
       finalValue: 96,
-      title: '客户满意度',
-      subtitle: '综合满意度评分',
+      title: '96% 续约铁粉',
+      subtitle: 'Retention Rate',
       description: '4.8/5.0 综合评分 • 85% 续约合作率',
       iconPath: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
       gradientFrom: '#F97316',
@@ -272,8 +275,8 @@ const ResultsShowcase = () => {
     };
 
     const startRealTimeUpdate = () => {
-      // 更新今日咨询数
-      setTodayConsultations(calculateTodayConsultations());
+      // 更新今日咨询数（基于Pi的确定性算法）
+      setTodayConsultations(getDailyInquiryCount());
       
       // 每0.5秒更新一次实时节约成本
       realTimeInterval = window.setInterval(() => {
@@ -283,10 +286,18 @@ const ResultsShowcase = () => {
         }));
       }, SAVINGS_CONFIG.updateInterval);
 
-      // 每2分钟更新一次今日咨询数（制造"刚有人咨询"的感觉）
-      consultationInterval = window.setInterval(() => {
-        setTodayConsultations(calculateTodayConsultations());
-      }, 120000);
+      // 每天午夜更新一次咨询数（因为是基于日期的确定性算法）
+      const now = new Date();
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+      const timeUntilMidnight = tomorrow.getTime() - now.getTime();
+      
+      consultationInterval = window.setTimeout(() => {
+        setTodayConsultations(getDailyInquiryCount());
+        // 设置下一个24小时的interval
+        consultationInterval = window.setInterval(() => {
+          setTodayConsultations(getDailyInquiryCount());
+        }, 86400000); // 24 hours
+      }, timeUntilMidnight);
     };
 
     const observer = new IntersectionObserver(
@@ -312,23 +323,31 @@ const ResultsShowcase = () => {
     };
   }, []);
 
-  // 客户案例自动滚动 - 每次只滚动1个，实现无限循环
+  // 客户案例连续滚动 - 平滑向上滚动
   useEffect(() => {
     if (isTestimonialPaused) return;
 
-    const interval = setInterval(() => {
-      setCurrentTestimonialIndex((prev) => {
-        const nextIndex = prev + 1;
-        // 当滚动完第一组后，立即无动画地重置到起点
-        if (nextIndex >= testimonials.length) {
-          return 0;
-        }
-        return nextIndex;
-      });
-    }, 4000); // 每4秒滚动一次
+    let animationFrameId: number;
+    const scrollSpeed = 0.8; // 每帧移动的像素数，调整这个值可以改变滚动速度
 
-    return () => clearInterval(interval);
-  }, [isTestimonialPaused, testimonials.length]);
+    const animate = () => {
+      setScrollOffset((prev) => {
+        const newOffset = prev + scrollSpeed;
+        // 当滚动超过一个卡片高度（约280px）时，重置
+        // 使用模运算实现无限循环
+        return newOffset % 280;
+      });
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isTestimonialPaused]);
 
   return (
     <>
@@ -364,7 +383,7 @@ const ResultsShowcase = () => {
         }
       `}</style>
       
-    <section id="results" className="relative py-32 overflow-hidden bg-stone-50">
+    <section id="results" className="relative py-32 overflow-hidden" style={{ backgroundColor: '#FFFBF2' }}>
       {/* 顶部渐变光效 */}
       <div 
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[300px] opacity-10 blur-[100px]"
@@ -379,18 +398,17 @@ const ResultsShowcase = () => {
           {/* Header with Urgency */}
           <div className="text-center mb-6">
             <h2 
-              className="text-display mb-8"
+              className="mb-8 font-bold"
               style={{
+                fontFamily: 'var(--font-heading)',
                 color: '#0A0A0A',
-                fontSize: 'clamp(3rem, 10vw, 8rem)',
-                lineHeight: '1.1',
-                textTransform: 'uppercase'
+                fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+                lineHeight: '1.2'
               }}
             >
-              用数据说话
-              <br />
+              拒绝空谈，
               <span style={{ color: '#D97757' }}>
-                让成果证明
+                数据是最好的证明
               </span>
             </h2>
           </div>
@@ -669,7 +687,7 @@ const ResultsShowcase = () => {
             {/* 左侧：3个客户案例 - 占2/3宽度 */}
             <div 
               className="lg:col-span-2 relative"
-              style={{ height: '540px' }}
+              style={{ height: '594px' }}
               onMouseEnter={() => setIsTestimonialPaused(true)}
               onMouseLeave={() => setIsTestimonialPaused(false)}
             >
@@ -705,58 +723,51 @@ const ResultsShowcase = () => {
                 </span> */}
               </div>
 
-              {/* 卡片容器 - 层叠展示 */}
-              <div className="relative" style={{ height: '480px' }}>
-                {/* 移除顶部遮罩，让所有卡片都清晰可见 */}
+              {/* 卡片容器 - 连续滚动 */}
+              <div className="relative overflow-hidden" style={{ height: '528px' }}>
+                {/* 顶部渐隐遮罩 */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-16 z-20 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(to bottom, rgba(255, 251, 242, 1) 0%, rgba(255, 251, 242, 0) 100%)'
+                  }}
+                ></div>
+                
+                {/* 底部渐隐遮罩 */}
+                <div 
+                  className="absolute bottom-0 left-0 right-0 h-16 z-20 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(255, 251, 242, 1) 0%, rgba(255, 251, 242, 0) 100%)'
+                  }}
+                ></div>
 
-                {/* 渲染当前可见的3个卡片（层叠展示） */}
-                {[0, 1, 2].map((offset) => {
-                  const testimonialIndex = (currentTestimonialIndex + offset) % testimonials.length;
-                  const testimonial = testimonials[testimonialIndex];
-                  
-                  // 计算卡片位置 - 增大间距让每张卡片都能看到足够内容
-                  // offset 0: Y=0 (露出顶部约130px)
-                  // offset 1: Y=130 (露出中间约130px)  
-                  // offset 2: Y=260 (完整显示200px)
-                  const baseY = offset * 130; // 130px间距，确保每张卡片都露出足够空间
-                  
-                  // 判断是否是顶部或底部卡片
-                  const isTop = offset === 0; // 最底层卡片，轻微透明
-                  const isNewBottom = offset === 2; // 新弹出卡片，在最上层
-                  
-                  // 根据层级设置不同的z-index和阴影强度
-                  const zIndex = 10 + offset; // 新卡片z-index最高，压在上面
-                  const getShadow = () => {
-                    // 所有卡片都有顶部微阴影（盖住下方卡片）+ 底部主阴影
-                    if (isTop) {
-                      return '0 -3px 8px -2px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04)'; 
-                    }
-                    if (offset === 1) {
-                      return '0 -3px 10px -2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(217, 119, 87, 0.08)'; 
-                    }
-                    if (isNewBottom) {
-                      return '0 -4px 12px -2px rgba(0, 0, 0, 0.2), 0 16px 40px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(217, 119, 87, 0.15)';
-                    }
-                    return '0 -3px 8px -2px rgba(0, 0, 0, 0.12), 0 6px 16px rgba(0, 0, 0, 0.1)';
-                  };
-                  
-                  return (
-                    <div
-                      key={`${currentTestimonialIndex}-${offset}`}
-                      className="absolute left-0 right-0 bg-white rounded-2xl border border-orange-100 hover:border-orange-300"
-                      style={{
-                        top: `${baseY}px`,
-                        zIndex: zIndex,
-                        padding: '2rem',
-                        minHeight: '200px',
-                        boxShadow: getShadow(),
-                        opacity: isTop ? 0.3 : 1,
-                        transform: isTop ? 'scale(0.98)' : 'scale(1)',
-                        // 只有底部新卡片播放出现动画 - 快速淡入上滑
-                        animation: isNewBottom ? 'slideInFromBottom 0.45s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
-                        transition: isTop ? 'opacity 0.6s ease-out, transform 0.6s ease-out' : 'none'
-                      }}
-                    >
+                {/* 滚动容器 */}
+                <div
+                  className="absolute left-0 right-0"
+                  style={{
+                    transform: `translateY(-${scrollOffset}px)`,
+                    willChange: 'transform'
+                  }}
+                >
+                  {/* 渲染两组完整的卡片列表以实现无缝循环 */}
+                  {[...testimonials, ...testimonials].map((testimonial, index) => {
+                    return (
+                      <div
+                        key={`testimonial-${index}`}
+                        className="bg-white rounded-2xl border border-orange-100 hover:border-orange-300 mb-4"
+                        style={{
+                          padding: '2rem',
+                          minHeight: '260px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                          transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 8px 24px rgba(217, 119, 87, 0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+                        }}
+                      >
                   {/* 头像和信息 */}
                   <div className="flex items-start gap-4 mb-6">
                     <div 
@@ -839,14 +850,15 @@ const ResultsShowcase = () => {
                       </div>
                     ))}
                   </div>
-                    </div>
-                  );
-                })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             {/* 右侧：活动时间轴 - 占1/3宽度 */}
-            <div className="relative flex flex-col" style={{ height: '540px' }}>
+            <div className="relative flex flex-col" style={{ height: '594px' }}>
               {/* 标题 */}
               <div className="pb-4 border-b border-gray-100 flex-shrink-0">
                 <div className="flex items-center gap-2 mb-1">

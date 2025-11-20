@@ -771,9 +771,9 @@ const AIImplementationPage: React.FC = () => {
 
           <div className="flex justify-center items-center gap-12 mt-12 pt-12 border-t border-slate-700">
             {[
-              { num: '50+', label: '服务企业' },
-              { num: '98%', label: '满意度' },
-              { num: '2000%+', label: '平均ROI' }
+              { num: '120+', label: '服务企业' },
+              { num: '96%', label: '满意度' },
+              { num: '600%+', label: '平均ROI' }
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <div 
